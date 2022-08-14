@@ -1,2 +1,1 @@
-# bookstore_oauth_api
- 
+# Auth api for a bookstore
