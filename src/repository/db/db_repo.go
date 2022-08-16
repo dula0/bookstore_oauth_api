@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/dula0/bookstore_oauth_api/clients/cassandra"
+	"github.com/dula0/bookstore_oauth_api/src/clients/cassandra"
 	"github.com/dula0/bookstore_oauth_api/src/domain/access_token"
 	"github.com/dula0/bookstore_users_api/utils/errors"
 )
@@ -10,7 +10,7 @@ import (
 const (
 	getAccessTokenQuery    = "SELECT access_token, user_id, client_id, expires FROM access_tokens WHERE access_token=?;"
 	createAccessTokenQuery = "INSERT INTO access_tokens(access_token, user_id, client_id, expires) VALUES (?, ?, ?, ?);"
-	UpdateExpirationQuery = "UPDATE access_tokens SET expires=? WHERE access_token=?;"
+	UpdateExpirationQuery  = "UPDATE access_tokens SET expires=? WHERE access_token=?;"
 )
 
 func NewRepo() DbRepository {
@@ -27,14 +27,9 @@ type dbRepository struct {
 }
 
 func (r *dbRepository) GetById(id string) (*access_token.AccessToken, *errors.RestErr) {
-	session, err := cassandra.GetSession()
-	if err != nil {
-		return nil, errors.InternalServerError(err.Error())
-	}
-	defer session.Close()
 
 	var result access_token.AccessToken
-	if err := session.Query(getAccessTokenQuery, id).Scan(
+	if err := cassandra.GetSession().Query(getAccessTokenQuery, id).Scan(
 		&result.AccessToken,
 		&result.UserId,
 		&result.ClientId,
@@ -50,13 +45,8 @@ func (r *dbRepository) GetById(id string) (*access_token.AccessToken, *errors.Re
 }
 
 func (r *dbRepository) Create(at access_token.AccessToken) *errors.RestErr {
-	session, err := cassandra.GetSession()
-	if err != nil {
-		return errors.InternalServerError(err.Error())
-	}
-	defer session.Close()
 
-	if err := session.Query(createAccessTokenQuery,
+	if err := cassandra.GetSession().Query(createAccessTokenQuery,
 		at.AccessToken,
 		at.UserId,
 		at.ClientId,
@@ -69,13 +59,8 @@ func (r *dbRepository) Create(at access_token.AccessToken) *errors.RestErr {
 }
 
 func (r *dbRepository) UpdateExpirationTime(at access_token.AccessToken) *errors.RestErr {
-	session, err := cassandra.GetSession()
-	if err != nil {
-		return errors.InternalServerError(err.Error())
-	}
-	defer session.Close()
 
-	if err := session.Query(createAccessTokenQuery,
+	if err := cassandra.GetSession().Query(UpdateExpirationQuery,
 		at.Expires,
 		at.AccessToken,
 	).Exec(); err != nil {
