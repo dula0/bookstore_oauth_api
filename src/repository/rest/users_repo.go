@@ -2,7 +2,6 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"time"
 
@@ -35,9 +34,6 @@ func (r *usersRepo) LoginUser(email string, password string) (*users.User, *erro
 		Email:    email,
 		Password: password,
 	}
-
-	bytes1, _ := json.Marshal(request)
-	fmt.Println(string(bytes1))
 
 	response := usersRestClient.Post("/users/login", request)
 
